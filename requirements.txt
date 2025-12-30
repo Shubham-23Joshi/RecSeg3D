@@ -1,0 +1,8 @@
+opencv-python
+matplotlib
+numpy
+open3d
+scipy
+ultralytics
+pandas
+seaborn
