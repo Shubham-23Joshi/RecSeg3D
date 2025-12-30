@@ -1,1 +1,9 @@
-/datasets
+# Ignore runtime-generated data
+RecSeg3D_data/*
+RecSeg3D_evals/*
+/datasets/volker_data_capture
+
+# Keep directory structure
+!RecSeg3D_data/.gitkeep
+!RecSeg3D_evals/.gitkeep
+
