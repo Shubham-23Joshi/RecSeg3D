@@ -8,4 +8,4 @@ Installation:
 
 Files and Folders:
 1. RecSeg3D_eval.py - main pipeline code
-run: python3 RecSeg3D_eval.py --mask <mask number>
+run: python3 RecSeg3D_eval.py --mask {insert mask num here}
