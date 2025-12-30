@@ -42,7 +42,7 @@ generate_random = False # if True, generate random noise for evaluation purposes
 all_edges_good = True # if True, all edges are good and no noise is applied
 runYOLO = True # if True, run YOLO to get initial segmentations
 known_dims = True # if True, use the known object dimensions for optimization
-test_dataset = True # if True, use the test dataset (from the folder "new_data")
+test_dataset = True # if True, use the test dataset (from the folder "datasets/new_data")
 log = False # if True, log optimization results at each iteration, but slows down the process
 
 cntr_line_weights = np.array([0.25, 0.25, 0.25, 0.25], dtype=float) # weight for each edge in the first residual (contour line fitting)
@@ -68,16 +68,16 @@ records.append({
 # Data Preparation ---------------------------------------------------------------------------
 
 data_list = ["20251105_135131_733", "20251105_135415_228", "20251105_135807_229"]
-
+selected_data = 1
 
 # Dataset: rgb image, depth map, info file
-rgb_path = f"volker_data_capture/{data_list[1]}/rgb.png"
-depth_path = f"volker_data_capture/{data_list[1]}/depth.png"
+rgb_path = f"datasets/volker_data_capture/{data_list[selected_data]}/rgb.png"
+depth_path = f"datasets/volker_data_capture/{data_list[selected_data]}/depth.png"
 info_csv = ""
 crop_pts = [(174, 311), (243, 118), (391, 122), (443, 326)] # (x,y) tuples for cropping the image
 
 # clean the folder before proceding 
-data_folder = "obj_FINAL1_data"
+data_folder = "RecSeg3D_data"
 permanent_folder = "permanent_data"
 for item in os.listdir(data_folder):
     item_path = os.path.join(data_folder, item)
@@ -92,44 +92,44 @@ if test_dataset:
     datasets = {
         # image 2
         2: {
-            "rgb": "new_data/2025_02_24___12_28_15_rgb.jpg",
-            "depth": "new_data/2025_02_24___12_28_15_depth.png",
-            "info": "new_data/2025_02_24___12_28_15_request.csv",
+            "rgb": "datasets/new_data/2025_02_24___12_28_15_rgb.jpg",
+            "depth": "datasets/new_data/2025_02_24___12_28_15_depth.png",
+            "info": "datasets/new_data/2025_02_24___12_28_15_request.csv",
             "crop_pts": [(93, 992), (684, 186), (1207, 181), (1846, 992)],
         },
         # image 3
         3: {
-            "rgb": "new_data/2025_02_27___12_37_07_239_rgb.jpg",
-            "depth": "new_data/2025_02_27___12_37_07_239_depth.png",
-            "info": "new_data/2025_02_27___12_37_07_239_request.csv",
+            "rgb": "datasets/new_data/2025_02_27___12_37_07_239_rgb.jpg",
+            "depth": "datasets/new_data/2025_02_27___12_37_07_239_depth.png",
+            "info": "datasets/new_data/2025_02_27___12_37_07_239_request.csv",
             "crop_pts": [(720, 190), (240, 895), (1680, 910), (1190, 190)],
         },
         # image 4
         4: {
-            "rgb": "new_data/2025_02_26___16_00_41_665_rgb.jpg",
-            "depth": "new_data/2025_02_26___16_00_41_665_depth.png",
-            "info": "new_data/2025_02_26___16_00_41_665_request.csv",
+            "rgb": "datasets/new_data/2025_02_26___16_00_41_665_rgb.jpg",
+            "depth": "datasets/new_data/2025_02_26___16_00_41_665_depth.png",
+            "info": "datasets/new_data/2025_02_26___16_00_41_665_request.csv",
             "crop_pts": [(167, 954), (704, 193), (1171, 193), (1683, 943)],
         },
         # image 5
         5: {
-            "rgb": "new_data/2025_02_24___13_00_01_rgb.jpg",
-            "depth": "new_data/2025_02_24___13_00_01_depth.png",
-            "info": "new_data/2025_02_24___13_00_01_request.csv",
+            "rgb": "datasets/new_data/2025_02_24___13_00_01_rgb.jpg",
+            "depth": "datasets/new_data/2025_02_24___13_00_01_depth.png",
+            "info": "datasets/new_data/2025_02_24___13_00_01_request.csv",
             "crop_pts": [(70, 998), (715, 179), (1187, 179), (1803, 998)],
         },
         # image 6 (use v3 by default)
         6: {
-            "rgb": "new_data/2025_02_25___15_32_18_rgb.jpg",
-            "depth": "new_data/2025_02_25___15_32_18_depth.png",
-            "info": "new_data/2025_02_25___15_32_18_request.csv",
+            "rgb": "datasets/new_data/2025_02_25___15_32_18_rgb.jpg",
+            "depth": "datasets/new_data/2025_02_25___15_32_18_depth.png",
+            "info": "datasets/new_data/2025_02_25___15_32_18_request.csv",
             "crop_pts": [(1, 162), (1191, 164), (1620, 866), (0, 853)],
         },
         # image 7
         7: {
-            "rgb": "new_data/2025_03_04___12_36_32_642_rgb.jpg",
-            "depth": "new_data/2025_03_04___12_36_32_642_depth.png",
-            "info": "new_data/2025_03_04___12_36_32_642_request.csv",
+            "rgb": "datasets/new_data/2025_03_04___12_36_32_642_rgb.jpg",
+            "depth": "datasets/new_data/2025_03_04___12_36_32_642_depth.png",
+            "info": "datasets/new_data/2025_03_04___12_36_32_642_request.csv",
             "crop_pts": [(12, 63), (17, 1071), (1911, 1075), (1896, 82)],
         },
     }
@@ -288,7 +288,7 @@ def visPCL(pcl, pcl_is_array, cam_frame=True, is_color=False):
         pcd.points = o3d.utility.Vector3dVector(pcl)
         if is_color:
             try:
-                colors = np.load("obj_FINAL1_data/segment_pts_3D_color.npy")
+                colors = np.load("RecSeg3D_data/segment_pts_3D_color.npy")
                 pcd.colors = o3d.utility.Vector3dVector(colors)
             except FileNotFoundError:
                 print("Color file not found. Visualizing without color.")
@@ -880,20 +880,20 @@ mask = np.zeros_like(img)
 roi_corners = np.array([crop_pts], dtype=np.int32)
 cv2.fillPoly(mask, roi_corners, (255, 255, 255))
 img = cv2.bitwise_and(original_img, mask)
-rgb_path = "obj_FINAL1_data/cropped.jpg"
+rgb_path = "RecSeg3D_data/cropped.jpg"
 cv2.imwrite(rgb_path, img)
 
 # save folder string
-save_dir = f"obj_FINAL1_evaluation/image_{image_num}/mask_{mask_number}_experim_{date_time}"
-masks_dir = f"obj_FINAL1_data/permanent_data/YOLO_results/image_{image_num}"
+save_dir = f"RecSeg3D_evals/image_{image_num}/mask_{mask_number}_experim_{date_time}"
+masks_dir = f"RecSeg3D_data/permanent_data/YOLO_results/image_{image_num}"
 # create folder if not exists
 os.makedirs(save_dir, exist_ok=True)
 os.makedirs(masks_dir, exist_ok=True)
 
-csv_path = f"obj_FINAL1_evaluation/image_{image_num}/poses_and_bboxes.csv"
+csv_path = f"RecSeg3D_evals/image_{image_num}/poses_and_bboxes.csv"
 
 if runYOLO:
-    results = YOLOInference("obj_FINAL1_data/cropped.jpg")
+    results = YOLOInference("RecSeg3D_data/cropped.jpg")
     masks = results[0].masks.data.cpu().numpy()
     print(type(masks))
     print("number of masks: ", masks.shape)
@@ -903,7 +903,7 @@ if runYOLO:
 
 mask = np.load(masks_dir + f"/mask_{mask_number}.npy")
 segment, output_img = ViewSegments(rgb_path, mask, blend_value=0.4, show=False, save=False, debug=False)
-np.save("obj_FINAL1_data/YOLO_segment.npy", segment)
+np.save("RecSeg3D_data/YOLO_segment.npy", segment)
 
 # save for evaluation
 cv2.imwrite(save_dir + "/yolo_segmentation.png", output_img)
@@ -915,21 +915,21 @@ cv2.imwrite(save_dir + "/yolo_segmentation.png", output_img)
 
 rgb_img = cv2.imread(rgb_path)
 depth_img = cv2.imread(depth_path, cv2.IMREAD_UNCHANGED)
-mask = np.load("obj_FINAL1_data/YOLO_segment.npy")
+mask = np.load("RecSeg3D_data/YOLO_segment.npy")
 
 pcd = createSegmentPCL(rgb_img, depth_img, mask, show=False)
 segment_pts_3d = np.asarray(pcd.points)
 segment_pts_color = np.asarray(pcd.colors)
 
-np.save("obj_FINAL1_data/segment_pts_3D.npy", segment_pts_3d)
-np.save("obj_FINAL1_data/segment_pts_3D_color.npy", segment_pts_color)
+np.save("RecSeg3D_data/segment_pts_3D.npy", segment_pts_3d)
+np.save("RecSeg3D_data/segment_pts_3D_color.npy", segment_pts_color)
 # save for evaluation
 np.save(save_dir + "/point_cloud_segmentation.npy", segment_pts_3d)
 np.save(save_dir + "/point_cloud_segmentation_color.npy", segment_pts_color)
 print("Segment points shape: ", segment_pts_3d.shape)
 
 # Visualization
-segment_pts_3D = np.load("obj_FINAL1_data/segment_pts_3D.npy")
+segment_pts_3D = np.load("RecSeg3D_data/segment_pts_3D.npy")
 show_4 = False
 if show_4:
     visPCL(segment_pts_3D, pcl_is_array=True, cam_frame=True, is_color=True)
@@ -953,7 +953,7 @@ else: # add noises to the edges and set weights accordingly
             good_edges = generate_good_edges(mode=cntr_mode)
         else:
             # Read the CSV only once if possible
-            good_edges_csv_path = f"obj_FINAL1_evaluation/image_{image_num}/good_edges.csv"
+            good_edges_csv_path = f"RecSeg3D_evals/image_{image_num}/good_edges.csv"
             good_edges_df = pd.read_csv(good_edges_csv_path)
             row = good_edges_df[good_edges_df["mask_number"] == mask_number]
             if row.empty:
@@ -971,7 +971,7 @@ else: # add noises to the edges and set weights accordingly
 
     else:
         # If no noise and not using random, just take good edges from CSV
-        good_edges_csv_path = f"obj_FINAL1_evaluation/image_{image_num}/good_edges.csv"
+        good_edges_csv_path = f"RecSeg3D_evals/image_{image_num}/good_edges.csv"
         good_edges_df = pd.read_csv(good_edges_csv_path)
         row = good_edges_df[good_edges_df["mask_number"] == mask_number]
         if row.empty:
@@ -999,10 +999,10 @@ angle = 0 if manual_randomization else angle
 print("Randomizer Shift: ", shift, "Randomizer Angle: ", angle)
 
 
-segment = np.load("obj_FINAL1_data/YOLO_segment.npy")
+segment = np.load("RecSeg3D_data/YOLO_segment.npy")
 segment = clean_segment_mask(segment)  # Clean the segment mask to keep only the largest contour if more than one found
 segment_pts_2D = np.column_stack(np.where(segment > 0)) # This is the x_i
-np.save("obj_FINAL1_data/segment_pts_2D.npy", segment_pts_2D)
+np.save("RecSeg3D_data/segment_pts_2D.npy", segment_pts_2D)
 print("Segmentation points shape: ", segment_pts_2D.shape)
 segment_uint8 = segment.astype(np.uint8)
 grey_segment = cv2.cvtColor(segment_uint8, cv2.COLOR_BGR2GRAY) if len(segment_uint8.shape) == 3 else segment_uint8
@@ -1090,7 +1090,7 @@ for i in range(4):
     dilated_img = cv2.dilate(img, kernel, iterations=1)
     dilated_line = np.column_stack(np.where(dilated_img > 0))
     dilated_line = dilated_line[:, [1, 0]]
-    np.save(f"obj_FINAL1_data/contour_line_{i+1}_pts.npy", dilated_line[:,:2])
+    np.save(f"RecSeg3D_data/contour_line_{i+1}_pts.npy", dilated_line[:,:2])
     #print(f"Line {i+1} shape: ", dilated_line[:,:2].shape)
     contour_points.append(dilated_line[:,:2])
 
@@ -1128,11 +1128,11 @@ for i, cntr_pts in enumerate(contour_points):
     cntr_pts_norm = ptsToNormImageCoords(cntr_pts, adjust_px_offset=False)
     #cntr_pts_norm[:, 1] *= -1  # Flip y-coordinates
     print("Contour points in normalized image coordinates shape: ", cntr_pts_norm.shape)
-    #np.save(f"obj_FINAL1_data/contour_line_{i+1}_pts_normed.npy", cntr_pts_norm)
+    #np.save(f"RecSeg3D_data/contour_line_{i+1}_pts_normed.npy", cntr_pts_norm)
     cntr_pts_norm_list.append(cntr_pts_norm)
 
 for i, cntr_pts_norm in enumerate(cntr_pts_norm_list):
-    np.save(f"obj_FINAL1_data/contour_line_{i+1}_pts_normed.npy", cntr_pts_norm)
+    np.save(f"RecSeg3D_data/contour_line_{i+1}_pts_normed.npy", cntr_pts_norm)
 
 
 colors = ['red', 'blue', 'green', 'cyan']  # Define colors for each contour
@@ -1143,8 +1143,8 @@ for i, cntr_pts_norm in enumerate(cntr_pts_norm_list):
 
 
 # Data loading and initialization --------------------------------
-pts3d = np.load("obj_FINAL1_data/segment_pts_3D.npy")  # (N, 3)
-pts3d_color = np.load("obj_FINAL1_data/segment_pts_3D_color.npy")  # (N, 3)
+pts3d = np.load("RecSeg3D_data/segment_pts_3D.npy")  # (N, 3)
+pts3d_color = np.load("RecSeg3D_data/segment_pts_3D_color.npy")  # (N, 3)
 
 # using RANSAC
 pcd = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(pts3d))
@@ -1165,7 +1165,7 @@ centr_actual = np.mean(pts3d, axis=0)
 print("Centroid actual: ", centr_actual)
 
 contour_sets = [
-    np.load(f"obj_FINAL1_data/contour_line_{i+1}_pts_normed.npy")
+    np.load(f"RecSeg3D_data/contour_line_{i+1}_pts_normed.npy")
     for i in range(4)
 ]
 print("Final contour_sets shapes (B-R-T-L):", [c.shape for c in contour_sets])
@@ -1701,7 +1701,7 @@ line_width         = 2
 
 # --- 2) Compute observed & optimized & initial UVs (as before) ---
 # assume ep, p0, u, v, pts3d, pts3d_color, B_corners, q_opt, t_opt, init_quat, init_trans are in scope
-#pts3d_color = np.load("obj_FINAL1_data/segment_pts_3D_color.npy")  # (N, 3)
+#pts3d_color = np.load("RecSeg3D_data/segment_pts_3D_color.npy")  # (N, 3)
 # 1) observed corners via 3-plane intersection
 abc = optimal_lines
 ep  = C_ep_opt.copy()
@@ -1845,7 +1845,7 @@ fig.savefig(save_dir + "/plot_on_ep_plane.png", dpi=400, bbox_inches='tight')
 # save the plot
 
 
-pts3d_color = np.load("obj_FINAL1_data/segment_pts_3D_color.npy")  # (N, 3)
+pts3d_color = np.load("RecSeg3D_data/segment_pts_3D_color.npy")  # (N, 3)
 fx, fy, cx, cy, w, h = (
     cam_intrinsics[0], cam_intrinsics[1],
     cam_intrinsics[2], cam_intrinsics[3],
@@ -1973,7 +1973,7 @@ save_img_file1 = save_dir + "/visualize_all_3d_top_view.png"
 save_img_file2 = save_dir + "/visualize_all_3d_camera_view.png"
 
 
-T_top = np.load("obj_FINAL1_data/permanent_data/top_view_frame_transform.npy")
+T_top = np.load("RecSeg3D_data/permanent_data/top_view_frame_transform.npy")
 # create and place the frame
 frame_top = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
 frame_top.transform(T_top)
