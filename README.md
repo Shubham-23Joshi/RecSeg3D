@@ -1,6 +1,8 @@
 # RecSeg3D
 
 RecSeg3D is a constrained optimization-based pipeline which performs 3D segmentation and refinement of rectangular planes, such as surfaces of boxes, from an RGB-D scene data. The pipeline takes segmentation masks (e.g. from YOLO or SAM) and RGB-D data of the target scene as input and iteratively refines the 2D and 3D segmentations and the 6D pose of the target rectangular planes from the scene using known geometric constraints of rectangular planar structures.
+
+![Pipeline Overview](info_images/overview_fig1.png)
 ---
 
 ## Installation
